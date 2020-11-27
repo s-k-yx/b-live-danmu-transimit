@@ -177,6 +177,7 @@ class MainInterface():
         self.content_sample = content_sample
         self.word_fix = word_fix_list
         self.word_fix_index = 0  # 索引，用于切换前后缀
+        self.words_limit_len = 20  # 一句话最大长度，好像b站20级以下用户限制是20,20级以上是30，该参数从文件中读取
 
         try:
             if not os.path.exists("./history/"):
@@ -238,9 +239,37 @@ class MainInterface():
             print("其他错误，exception in MainInterface:__init__")
             exit(-1)
 
+        try:
+            with open("./config/RunningConfig.txt", 'r', encoding="utf-8") as f:
+                all_lines = f.readlines()
+                for line in all_lines:
+                    line = line.strip(" \r\n")
+                    if len(line) == 0:
+                        continue
+                    parts = re.split("[: \t\r\n]+", line, 1)
+                    if parts[0] == "words_limit":
+                        self.words_limit_len = int(parts[1])
+                        break
+        except IOError:
+            tkinter.messagebox.showerror(
+                title='提示',
+                message='没有找到配置文件或读入失败，exception in MainInterface:__init__',
+                parent=self.root  # 这样才会显示在当前窗口上方
+            )
+            print("没有找到配置文件或读入失败，exception in MainInterface:__init__")
+            exit(-1)
+        except:
+            tkinter.messagebox.showerror(
+                title='提示',
+                message='其他错误，exception in MainInterface:__init__',
+                parent=self.root  # 这样才会显示在当前窗口上方
+            )
+            print("其他错误，exception in MainInterface:__init__")
+            exit(-1)
+
         self.word_count_label = tkinter.Label(
             self.root,
-            text=str(self.getFixLen()) + '/30',  # 已经有前后缀了
+            text=str(self.getFixLen()) + '/' + str(self.words_limit_len),  # 已经有前后缀了
             bg='gray',
             font=(self.font[0], 10),
             width=10,
@@ -333,15 +362,15 @@ class MainInterface():
         # 是对下面字数限制函数的修改，不再限制字数
         # 加这个函数只是为了追踪每次输入变化，别的绑定方法应该也可以，这里简单处理，沿用之前的
         total_len = len(new_str) + self.getFixLen()
-        self.word_count_label['text'] = str(total_len) + "/30"  # 更改字数显示
+        self.word_count_label['text'] = str(total_len) + '/' + str(self.words_limit_len)  # 更改字数显示
         return True  # 不管输入多长都是返回True
 
     def entryNumValidate(self, new_str):
         # 输入字数验证
         # print(len(new_str))
         total_len = len(new_str) + self.getFixLen()
-        if total_len <= 30:  # 加上前后缀后不超过限定
-            self.word_count_label['text'] = str(total_len) + "/30"  # 更改字数显示
+        if total_len <= self.words_limit_len:  # 加上前后缀后不超过限定
+            self.word_count_label['text'] = str(total_len) + '/' + str(self.words_limit_len)  # 更改字数显示
             return True
         return False
 
@@ -349,7 +378,7 @@ class MainInterface():
         # 提交一行输入
         # 修改过后字数超出限制自动分行
         content = self.text_input.get()
-        limit_len = 30-self.getFixLen()  # 一次能填多长内容
+        limit_len = self.words_limit_len-self.getFixLen()  # 一次能填多长内容
         if content is not None:
             while len(content) != 0:
                 to_send = content
@@ -397,12 +426,12 @@ class MainInterface():
             fix_len = self.getFixLen()
             # 现在不用裁剪了
             """
-            left_len = 30 - fix_len  # 剩余可用长度
+            left_len = self.words_limit_len - fix_len  # 剩余可用长度
             if len(self.text_input.get()) > left_len:
                 # 裁剪
                 self.text_input.delete(left_len ,tkinter.END)
             """
-            self.word_count_label['text'] = str(fix_len+len(self.text_input.get())) + "/30"  # 更改字数显示
+            self.word_count_label['text'] = str(fix_len+len(self.text_input.get())) + '/' + str(self.words_limit_len)  # 更改字数显示
         return 'break'  # 阻止事件继续传递
 
     def changeWordFixBackward(self, event):
@@ -420,12 +449,12 @@ class MainInterface():
             fix_len = self.getFixLen()
             # 现在不用裁剪了
             """
-            left_len = 30 - fix_len  # 剩余可用长度
+            left_len = self.words_limit_len - fix_len  # 剩余可用长度
             if len(self.text_input.get()) > left_len:
                 # 裁剪
                 self.text_input.delete(left_len, tkinter.END)
             """
-            self.word_count_label['text'] = str(fix_len + len(self.text_input.get())) + "/30"  # 更改字数显示
+            self.word_count_label['text'] = str(fix_len + len(self.text_input.get())) + '/' + str(self.words_limit_len)  # 更改字数显示
 
         return 'break'  # 阻止事件继续传递
 
