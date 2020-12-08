@@ -59,7 +59,6 @@ class DanmuMultiTransimitter():
                         continue
                     parts = re.split("[: \t\r\n]+", line, 1)
                     self.running_info[parts[0]] = parts[1].strip(" \r\n")
-                # 启动实际发送线程
         except IOError:
             tkinter.messagebox.showerror(
                 title='提示',
@@ -81,6 +80,7 @@ class DanmuMultiTransimitter():
                 message='请先设置csrf、cookie等信息',
             )
             raise SystemExit
+        # 启动实际发送线程
         self.sender = ActualTransimitter(room_id_list, self.running_info)
 
     def addMsg(self, msg):
