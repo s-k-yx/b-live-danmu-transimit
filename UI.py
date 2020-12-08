@@ -1,5 +1,6 @@
 """
 简单的图形界面
+结构还挺混乱的...
 """
 from abc import ABCMeta, abstractmethod
 import tkinter
@@ -9,6 +10,7 @@ import re
 import os
 import datetime
 import danmu_multitransmit
+
 
 class DataManager():
     # 数据的读取与保存
@@ -199,6 +201,7 @@ class MainInterface():
             self.Logger.write('content_sample:' + content_sample + '\n')
             self.Logger.write('word_fix_list:' + str(word_fix_list) + '\n')
             self.Logger.write('####\n')
+            # self.Logger.flush()
         except IOError:
             tkinter.messagebox.showerror(
                 title='提示',
@@ -353,8 +356,8 @@ class MainInterface():
         self.text_history.unbind("<Alt_L>")
 
         self.text_input.bind("<Return>", self.submitInputContent)  # 按下回车提交输入
-        self.text_input.bind("<Up>", self.changeWordFixBackward)  # 上下方向键改变前后缀
-        self.text_input.bind("<Down>", self.changeWordFixForward)  # 上下方向键改变前后缀
+        # self.text_input.bind("<Up>", self.changeWordFixBackward)  # 上下方向键改变前后缀
+        # self.text_input.bind("<Down>", self.changeWordFixForward)  # 上下方向键改变前后缀
         self.root.bind("<Tab>", self.changeWordFixForward)  # tab键改变前后缀
         self.root.bind("<Alt_L>", self.changeWordFixBackward)  # alt键改变前后缀
 
@@ -395,7 +398,6 @@ class MainInterface():
                     to_send = the_fix[0] + to_send + the_fix[1]  # 加上前后缀
                 else:
                     self.Logger.write(":" + to_send + "\n")  # 记录
-
                 self.text_history.config(state=tkinter.NORMAL)  # 之后再改为禁止
                 self.text_history.insert(tkinter.END, to_send+"\n")
                 self.text_history.see(tkinter.END)  # 显示最后部分
@@ -404,6 +406,7 @@ class MainInterface():
                 self.text_history.config(state=tkinter.DISABLED)  # 禁止输入，自己要输入时再改normal
 
                 self.transmitter.addMsg(to_send)
+                self.Logger.flush()
 
     def getFixLen(self):
         if len(self.word_fix) == 0:
@@ -2642,6 +2645,6 @@ class InterfaceManager():
         # 真正的关闭窗口
         self.root.destroy()
 
-# if __name__ == "__main__":
-#     ManagerInterface()
 
+if __name__ == "__main__":
+    pass
