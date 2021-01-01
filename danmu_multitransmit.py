@@ -175,7 +175,7 @@ class ActualTransimitter():
         cookie = {'cookie': self.cookie}
 
         diff_time = time.time() - self.last_send_time  # 离上一次发送过了多久
-        sleep_time = self.send_interval + 0.01 - diff_time  # 要等待多久才能再发，这里加0.01让时间稍微宽松一点
+        sleep_time = self.send_interval + 0.1 - diff_time  # 要等待多久才能再发，这里加0.1让时间稍微宽松一点
         # print(sleep_time)
         if sleep_time > 0:
             time.sleep(sleep_time)  # b站弹幕好像要隔1s才能发1条，所以要这样来设置
